@@ -1,0 +1,971 @@
+排序算法
+MYSQL索引和引擎 
+事物隔离和锁机制
+JAVA基础
+JAVA并发
+REDIS
+ZOOKEEPER
+集群原理
+TCP UDP HTTP HTTPS
+ES
+服务治理故障处理
+
+
+
+serializable如何实现
+implements Serializable
+
+
+tomcat原理
+
+
+oracle分析函数
+
+
+
+创建数据结构实现堆栈
+/**
+ * Created by Frank
+ */
+public class ToyStack {
+    /**
+     * 栈的最大深度
+     **/
+    protected int MAX_DEPTH = 10;
+
+    /**
+     * 栈的当前深度
+     */
+    protected int depth = 0;
+
+    /**
+     * 实际的栈
+     */
+    protected int[] stack = new int[MAX_DEPTH];
+
+    /**
+     * push，向栈中添加一个元素
+     *
+     * @param n 待添加的整数
+     */
+    protected void push(int n) {
+        if (depth == MAX_DEPTH - 1) {
+            throw new RuntimeException("栈已满，无法再添加元素。");
+        }
+        stack[depth++] = n;
+    }
+
+    /**
+     * pop，返回栈顶元素并从栈中删除
+     *
+     * @return 栈顶元素
+     */
+    protected int pop() {
+        if (depth == 0) {
+            throw new RuntimeException("栈中元素已经被取完，无法再取。");
+        }
+
+        // --depth，dept先减去1再赋值给变量dept，这样整个栈的深度就减1了（相当于从栈中删除）。
+        return stack[--depth];
+    }
+
+    /**
+     * peek，返回栈顶元素但不从栈中删除
+     *
+     * @return
+     */
+    protected int peek() {
+        if (depth == 0) {
+            throw new RuntimeException("栈中元素已经被取完，无法再取。");
+        }
+        return stack[depth - 1];
+    }
+}
+
+
+
+spring是如何实现IOC的，有几种依赖注入方式
+https://www.cnblogs.com/ITtangtang/p/3978349.html
+
+
+mysql的存储引擎有哪几种
+innodb和myIsam有什么区别
+
+MyISAM
+ 
+　　它不支持事务，也不支持外键，尤其是访问速度快，对事务完整性没有要求或者以SELECT、INSERT为主的应用基本都可以使用这个引擎来创建表。
+每个MyISAM在磁盘上存储成3个文件，其中文件名和表名都相同，但是扩展名分别为：
+	•	.frm(存储表定义)
+	•	MYD(MYData，存储数据)
+	•	MYI(MYIndex，存储索引)
+
+MyISAM的表还支持3种不同的存储格式：
+	•	静态(固定长度)表
+	•	动态表
+	•	压缩表
+　　其中静态表是默认的存储格式。静态表中的字段都是非变长字段，这样每个记录都是固定长度的，这种存储方式的优点是存储非常迅速，容易缓存，出现故障容易恢复；缺点是占用的空间通常比动态表多。静态表在数据存储时会根据列定义的宽度定义补足空格，但是在访问的时候并不会得到这些空格，这些空格在返回给应用之前已经去掉。同时需要注意：在某些情况下可能需要返回字段后的空格，而使用这种格式时后面到空格会被自动处理掉。
+　　动态表包含变长字段，记录不是固定长度的，这样存储的优点是占用空间较少，但是频繁到更新删除记录会产生碎片，需要定期执行OPTIMIZE TABLE语句或myisamchk -r命令来改善性能，并且出现故障的时候恢复相对比较困难。
+　　压缩表由myisamchk工具创建，占据非常小的空间，因为每条记录都是被单独压缩的，所以只有非常小的访问开支。 
+
+InnoDB
+InnoDB是一个健壮的事务型存储引擎，这种存储引擎已经被很多互联网公司使用，为用户操作非常大的数据存储提供了一个强大的解决方案。我的电脑上安装的MySQL 5.6.13版，InnoDB就是作为默认的存储引擎。InnoDB还引入了行级锁定和外键约束，在以下场合下，使用InnoDB是最理想的选择：
+1.更新密集的表。InnoDB存储引擎特别适合处理多重并发的更新请求。
+2.事务。InnoDB存储引擎是支持事务的标准MySQL存储引擎。
+3.自动灾难恢复。与其它存储引擎不同，InnoDB表能够自动从灾难中恢复。
+4.外键约束。MySQL支持外键的存储引擎只有InnoDB。
+5.支持自动增加列AUTO_INCREMENT属性。
+一般来说，如果需要事务支持，并且有较高的并发读取频率，InnoDB是不错的选择。
+
+MEMORY
+使用MySQL Memory存储引擎的出发点是速度。为得到最快的响应时间，采用的逻辑存储介质是系统内存。
+
+MERGE
+MERGE存储引擎是一组MyISAM表的组合，这些MyISAM表结构必须完全相同，尽管其使用不如其它引擎突出，但是在某些情况下非常有用。说白了，Merge表就是几个相同MyISAM表的聚合器；Merge表中并没有数据，对Merge类型的表可以进行查询、更新、删除操作，这些操作实际上是对内部的MyISAM表进行操作。Merge存储引擎的使用场景。
+对于服务器日志这种信息，一般常用的存储策略是将数据分成很多表，每个名称与特定的时间端相关。例如：可以用12个相同的表来存储服务器日志数据，每个表用对应各个月份的名字来命名。当有必要基于所有12个日志表的数据来生成报表，这意味着需要编写并更新多表查询，以反映这些表中的信息。与其编写这些可能出现错误的查询，不如将这些表合并起来使用一条查询，之后再删除Merge表，而不影响原来的数据，删除Merge表只是删除Merge表的定义，对内部的表没有任何影响。
+
+ARCHIVE
+Archive是归档的意思，在归档之后很多的高级功能就不再支持了，仅仅支持最基本的插入和查询两种功能。在MySQL 5.5版以前，Archive是不支持索引，但是在MySQL 5.5以后的版本中就开始支持索引了。Archive拥有很好的压缩机制，它使用zlib压缩库，在记录被请求时会实时压缩，所以它经常被用来当做仓库使用。
+
+
+
+innoDB表锁和行锁
+mysql常用引擎有MYISAM和InnoDB，而InnoDB是mysql默认的引擎。MYISAM不支持行锁，而InnoDB支持行锁和表锁。
+1.行锁和表锁
+2.行锁的类型
+3.行锁的实现
+
+1.行锁和表锁
+
+在mysql 的 InnoDB引擎支持行锁，与Oracle不同，mysql的行锁是通过索引加载的，即是行锁是加在索引响应的行上的，要是对应的SQL语句没有走索引，则会全表扫描，
+
+行锁则无法实现，取而代之的是表锁。
+
+表锁：不会出现死锁，发生锁冲突几率高，并发低。
+
+行锁：会出现死锁，发生锁冲突几率低，并发高。
+
+锁冲突：例如说事务A将某几行上锁后，事务B又对其上锁，锁不能共存否则会出现锁冲突。（但是共享锁可以共存，共享锁和排它锁不能共存，排它锁和排他锁也不可以）
+
+死锁：例如说两个事务，事务A锁住了1~5行，同时事务B锁住了6~10行，此时事务A请求锁住6~10行，就会阻塞直到事务B施放6~10行的锁，而随后事务B又请求锁住1~5行，事务B也阻塞直到事务A释放1~5行的锁。死锁发生时，会产生Deadlock错误。
+
+锁是对表操作的，所以自然锁住全表的表锁就不会出现死锁。
+
+2.行锁的类型
+
+行锁分 共享锁 和 排它锁。
+
+共享锁又称：读锁。当一个事务对某几行上读锁时，允许其他事务对这几行进行读操作，但不允许其进行写操作，也不允许其他事务给这几行上排它锁，但允许上读锁。
+
+排它锁又称：写锁。当一个事务对某几个上写锁时，不允许其他事务写，但允许读。更不允许其他事务给这几行上任何锁。包括写锁。
+
+上共享锁的写法：lock in share mode
+
+例如： select  math from zje where math>60 lock in share mode；
+
+上排它锁的写法：for update
+
+例如：select math from zje where math >60 for update；
+
+3.行锁的实现
+
+注意几点：
+
+1.行锁必须有索引才能实现，否则会自动锁全表，那么就不是行锁了。
+
+2.两个事务不能锁同一个索引，例如：
+
+事务A先执行：
+select math from zje where math>60 for update;
+ 
+事务B再执行：
+select math from zje where math<60 for update；
+这样的话，事务B是会阻塞的。如果事务B把 math索引换成其他索引就不会阻塞，但注意，换成其他索引锁住的行不能和math索引锁住的行有重复。
+3.insert ，delete ， update在事务中都会自动默认加上排它锁。
+实现：
+
+会话1：
+begin；
+select  math  from zje where math>60 for update；	
+会话2：
+
+begin；
+update zje set math=99 where math=68；
+阻塞...........
+会话相当与用户
+如上，会话1先把zje表中math>60的行上排它锁。然后会话2试图把math=68的行进行修改，math=68处于math>60中，所以是已经被锁的，会话2进行操作时，
+
+就会阻塞，等待会话1把锁释放。当commit时或者程序结束时，会释放锁。
+
+
+
+mysql索引
+前导模糊查询不能使用索引
+负向条件查询不能使用索引，可以优化为 in 查询
+联合索引最左前缀原则
+范围列可以用到索引（联合索引必须是最左前缀）
+强制类型转换会全表扫描
+超过三个表最好不要 join
+如果明确知道只有一条结果返回，limit 1 能够提高效率
+单索引字段数不允许超过5个
+同时存在联合索引和单列索引（字段有重复的），这个时候查询mysql会怎么用索引呢？
+这个涉及到mysql本身的查询优化器策略了，当一个表有多条索引可走时, Mysql 根据查询语句的成本来选择走哪条索引；
+
+
+
+Http是哪一层的协议，TCP协议建立连接的过程是怎样的
+
+TCP是底层通讯协议，定义的是数据传输和连接方式的规范
+      HTTP是应用层协议，定义的是传输数据的内容的规范
+      HTTP协议中的数据是利用TCP协议传输的，所以支持HTTP也就一定支持TCP      
+      HTTP支持的是www服务 
+      而TCP/IP是协议 
+      它是Internet国际互联网络的基础。TCP/IP是网络中使用的基本的通信协议。 
+      TCP/IP实际上是一组协议，它包括上百个各种功能的协议，如：远程登录、文件传输和电子邮件等，而TCP协议和IP协议是保证数据完整传输的两个基本的重要协议。通常说TCP/IP是Internet协议族，而不单单是TCP和IP。
+
+建立起一个TCP连接需要经过“三次握手”：
+      第一次握手：客户端发送syn包(syn=j)到服务器，并进入SYN_SEND状态，等待服务器确认；
+      第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；
+      第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。
+      握手过程中传送的包里不包含数据，三次握手完毕后，客户端与服务器才正式开始传送数据。理想状态下，TCP连接一旦建立，在通信双方中的任何一方主动关闭连 接之前，TCP 连接都将被一直保持下去。断开连接时服务器和客户端均可以主动发起断开TCP连接的请求，断开过程需要经过“四次握手”（过程就不细写 了，就是服务器和客户端交互，最终确定断开）
+
+
+
+UDP
+概述
+　　两者都是通信协议， TCP、UDP 是传输层协议，但他们的通信机制与应用场景不同，下面来阐述两者的区别以及它们的应用场景。
+
+TCP 与 UDP
+　　TCP（Transmission Control Protocol），又叫传输控制协议，UDP（User Datagram Protocol），又叫用户数据报协议，它们都是传输层的协议，但两者的机制不同，它们的区别如下：
+
+特点	TCP	UDP
+连接性	面向连接	面向非连接
+可靠性	可靠	不可靠
+传输效率	慢	快
+TCP　　
+　　从如上表格看到，TCP 是面向连接的，并且是一种可靠的协议，在基于 TCP 进行通信时，通信双方需要先建立一个 TCP 连接，建立连接需要经过三次握手，握手成功才可以进行通信，关于 TCP 三次握手、四次挥手的过程请看该文章。 
+　　另外 TCP 协议是一种可靠的传输协议，那么它是如何保证可靠性的呢？
+
+可靠性
+　　在讲解 TCP 如何保证可靠性前，首先得理解什么是可靠。在通信的角度来看，可靠即要确保通信双方的通信信息不会丢失，若丢失了保证能够对其进行恢复，并且收到的信息内容与原发送内容一样。 
+　　在 TCP 中，传输报文都是通过建立的虚拟连接来进行传输，发送端传输的每一个 TCP 报文，都会对其进行编号（编号是由于网络传输的原因，发送的报文可能会乱序到达，因此需要根据编号对报文进行重排），并且开启一个计时器；当接收端收到报文后，并且通过校验和对收到的报文数据进行校验，若校验成功则会返回一个确认报文，告知发送端我已经成功收到该报文了；若发送端在计时器结束前仍未收到确认报文，则认为接收端接收失败，则会重传该报文；服务端若收到重复报文（根据编号发现已经是收到了），则会将该报文丢弃。 
+　　因此，从上面的机制可以知道，TCP 是通过重传、确认和校验和的方式来确保可靠。 
+注：校验和并不能检验数据是否被篡改过，想要保证数据的完整性可以了解一下数字签名
+
+UDP
+　　UDP 是一种面向无连接，且不可靠的协议，在通信过程中，它并不像 TCP 那样需要先建立一个连接，只要（目的地址，端口号，源地址，端口号）确定了，就可以直接发送信息报文，并且不需要确保服务端一定能收到或收到完整的数据。它仅仅提供了校验和机制来保障一个报文是否完整，若校验失败，则直接丢弃报文，不做任何处理。
+
+TCP 与 UDP 的应用场景
+　　从特点上我们已经知道，TCP 是可靠的但传输速度慢 ，UDP 是不可靠的但传输速度快。因此在选用具体协议通信时，应该根据通信数据的要求而决定。 
+　　若通信数据完整性需让位与通信实时性，则应该选用 TCP 协议（如文件传输、重要状态的更新等）；反之，则使用 UDP 协议（如视频传输、实时通信等）。
+
+
+
+HTTPS
+
+非对称加密算法：RSA，DSA/DSS     在客户端与服务端相互验证的过程中用的是对称加密 
+对称加密算法：AES，RC4，3DES     客户端与服务端相互验证通过后，以随机数作为密钥时，就是对称加密
+HASH算法：MD5，SHA1，SHA256  在确认握手消息没有被篡改时 
+
+服务器用证书包住公钥，利用第三方私钥加密证书
+客户端用第三方公钥解密证书，不能解密则为伪造
+客户端去CA验证证书
+客户端取出公钥，加密对称秘钥
+服务端响应，相同方式加密对称秘钥
+请求响应使用对称秘钥……
+
+
+
+redis
+Redis中包含5种数据类型：STRING、LIST、SET、HASH、ZSET
+
+String字符串 
+set get del
+
+hash哈希
+hget hgetall hmget hdel
+
+list列表
+rpush lpush rpop lpop
+
+set集合
+sadd smembers
+
+zset(sorted set)有序集合
+zadd zrem 排序默认采用的升序
+
+
+
+
+各种排序算法
+https://www.cnblogs.com/10158wsj/p/6782124.html?utm_source=tuicool&utm_medium=referral
+
+
+netty
+
+
+
+luence facet
+
+
+
+倒排索引
+
+
+
+static synchronized修饰的方法和synchronized修饰的方法有什么区别
+一个是针对类的
+一个是针对实例的
+synchronized是对类的当前实例进行加锁，防止其他线程同时访问该类的该实例的所有synchronized块，注意这里是“类的当前实例”， 类的两个不同实例就没有这种约束了。那么static synchronized恰好就是要控制类的所有实例的访问了，static synchronized是限制线程同时访问jvm中该类的所有实例同时访问对应的代码快。实际上，在类中某方法或某代码块中有 synchronized，那么在生成一个该类实例后，改类也就有一个监视快，放置线程并发访问改实例synchronized保护快，而static synchronized则是所有该类的实例公用一个监视快了，也也就是两个的区别了,也就是synchronized相当于 this.synchronized，而
+static synchronized相当于Something.synchronized.
+      一个日本作者-结成浩的《java多线程设计模式》有这样的一个列子：
+      pulbic class Something(){
+         public synchronized void isSyncA(){}
+         public synchronized void isSyncB(){}
+         public static synchronized void cSyncA(){}
+         public static synchronized void cSyncB(){}
+     }
+   那么，加入有Something类的两个实例a与b，那么下列组方法何以被1个以上线程同时访问呢
+   a.   x.isSyncA()与x.isSyncB() 
+   b.   x.isSyncA()与y.isSyncA()
+   c.   x.cSyncA()与y.cSyncB()
+   d.   x.isSyncA()与Something.cSyncA()
+    这里，很清楚的可以判断：
+   a，都是对同一个实例的synchronized域访问，因此不能被同时访问
+   b，是针对不同实例的，因此可以同时被访问
+   c，因为是static synchronized，所以不同实例之间仍然会被限制,相当于Something.isSyncA()与   Something.isSyncB()了，因此不能被同时访问。
+   那么，第d呢?，书上的 答案是可以被同时访问的，答案理由是synchronzied的是实例方法与synchronzied的类方法由于锁定（lock）不同的原因。
+   个人分析也就是synchronized 与static synchronized 相当于两帮派，各自管各自，相互之间就无约束了，可以被同时访问。目前还不是分清楚java内部设计synchronzied是怎么样实现的。
+
+
+
+
+Java哪些集合类底层数据结构，算法，对jvm的了解，垃圾收集，性能调优，常用的社交模式，hashmanp底层数据结构，zset.c稀疏数据的存储方案等等
+
+https://blog.csdn.net/qq_25868207/article/details/55259978
+
+
+简单来说，HashMap由数组+链表组成的，数组是HashMap的主体，链表则是主要为了解决哈希冲突而存在的，如果定位到的数组位置不含链表（当前entry的next指向null）,那么对于查找，添加等操作很快，仅需一次寻址即可；如果定位到的数组包含链表，对于添加操作，其时间复杂度为O(n)，首先遍历链表，存在即覆盖，否则新增；对于查找操作来讲，仍需遍历链表，然后通过key对象的equals方法逐一比对查找。所以，性能考虑，HashMap中的链表出现越少，性能才会越好。
+
+https://www.cnblogs.com/wjtaigwh/p/6635484.html
+
+	0.	绝大多数刚创建的对象会被分配在Eden区，其中的大多数对象很快就会消亡。Eden区是连续的内存空间，因此在其上分配内存极快；
+
+	0.	最初一次，当Eden区满的时候，执行Minor GC，将消亡的对象清理掉，并将剩余的对象复制到一个存活区Survivor0（此时，Survivor1是空白的，两个Survivor总有一个是空白的）；
+
+	0.	 下次Eden区满了，再执行一次Minor GC，将消亡的对象清理掉，将存活的对象复制到Survivor1中，然后清空Eden区；
+
+	0.	 将Survivor0中消亡的对象清理掉，将其中可以晋级的对象晋级到Old区，将存活的对象也复制到Survivor1区，然后清空Survivor0区；
+
+	0.	当两个存活区切换了几次（HotSpot虚拟机默认15次，用-XX:MaxTenuringThreshold控制，大于该值进入老年代，但这只是个最大值，并不代表一定是这个值）之后，仍然存活的对象（其实只有一小部分，比如，我们自己定义的对象），将被复制到老年代。
+
+
+对象如果在年轻代存活了足够长的时间而没有被清理掉（即在几次Young GC后存活了下来），则会被复制到年老代，年老代的空间一般比年轻代大，能存放更多的对象，在年老代上发生的GC次数也比年轻代少。当年老代内存不足时，将执行Major GC，也叫 Full GC。　
+
+CMS并发收集
+
+
+
+手写一个单例 要求：懒汉模式  线程安全
+	•	public class SingletonTest {  
+	•	  
+	•	    private static SingletonTest instance = null;  
+	•	  
+	•	    private SingletonTest() {  
+	•	    }  
+	•	  
+	•	    private static synchronized void syncInit() {  
+	•	        if (instance == null) {  
+	•	            instance = new SingletonTest();  
+	•	        }  
+	•	    }  
+	•	  
+	•	    public static SingletonTest getInstance() {  
+	•	        if (instance == null) {  
+	•	            syncInit();  
+	•	        }  
+	•	        return instance;  
+	•	    }  
+	•	} 
+注意锁的意义
+
+  
+
+如何判断一个数m 是2的n次方 （手写代码）
+如题，如何判断一个整数是否是2的N次方，我能想到的方法有两个
+1.一直除2，看最后是否等于1.（最笨的方法）
+2.转换成2进制，看是否是这个样子的：1,10,100,1000,10000，就是除了最高位是1，其他都是0，或者说只有一个1.
+3.当我还在为我能想到第二个方法而沾沾自喜的时候，我看到了下面这种更巧妙的方法
+1
+2
+3
+4
+5
+6
+7
+以4(100)    7(0111)    8(1000)为例
+ 
+4 & 3 --> 100 & 011     = 0
+7 & 6 --> 0111 & 0110  != 0
+8 & 7 --> 1000 & 0111   = 0
+ 
+即 如果 m & (m - 1) == 0，则m是2的n次方。
+　　
+1
+2
+3
+public static boolean fun(int i){
+    return (i > 0) && ((i & (i - 1)) == 0);
+}
+
+
+
+java的设计模式
+https://blog.csdn.net/doymm2008/article/details/13288067
+
+
+volatile 关键字
+一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义：
+　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。
+　　2）禁止进行指令重排序。
+
+
+
+ConcurrentHashMap 底层数据结构
+https://blog.csdn.net/caisongcheng_good/article/details/79489852
+https://www.cnblogs.com/ITtangtang/p/3948786.html
+锁分段
+二次哈希
+可重入锁 进行第一次哈希
+Volatile 保证get效率
+
+
+微服务和分布式的区别
+
+
+
+
+spring 生命周期
+    下面以BeanFactory为例，说明一个Bean的生命周期活动：
+	•	Bean的建立
+      由BeanFactory读取Bean定义文件，并生成各个实例。
+	•	Setter注入
+      执行Bean的属性依赖注入。
+	•	BeanNameAware的setBeanName()
+      如果Bean类实现了org.springframework.beans.factory.BeanNameAware接口，则执行其setBeanName()方法。
+	•	BeanFactoryAware的setBeanFactory()
+      如果Bean类实现了org.springframework.beans.factory.BeanFactoryAware接口，则执行其setBeanFactory()方法。
+	•	BeanPostProcessors的processBeforeInitialization()
+      容器中如果有实现org.springframework.beans.factory.BeanPostProcessors接口的实例，则任何Bean在初始化之前都会执行这个实例的processBeforeInitialization()方法。
+	•	InitializingBean的afterPropertiesSet()
+      如果Bean类实现了org.springframework.beans.factory.InitializingBean接口，则执行其afterPropertiesSet()方法。
+	•	Bean定义文件中定义init-method
+      在Bean定义文件中使用“init-method”属性设定方法名称，如下：
+<bean id="demoBean" class="com.yangsq.bean.DemoBean" init-method="initMethod">
+  .......
+ </bean>
+      这时会执行initMethod()方法，注意，这个方法是不带参数的。
+	•	BeanPostProcessors的processAfterInitialization()
+      容器中如果有实现org.springframework.beans.factory.BeanPostProcessors接口的实例，则任何Bean在初始化之前都会执行这个实例的processAfterInitialization()方法。
+	•	DisposableBean的destroy()
+      在容器关闭时，如果Bean类实现了org.springframework.beans.factory.DisposableBean接口，则执行它的destroy()方法。
+	•	Bean定义文件中定义destroy-method
+      在容器关闭时，可以在Bean定义文件中使用“destory-method”定义的方法
+
+
+
+ThreadLocal 和aop中的应用
+Controller transaction
+https://www.cnblogs.com/dolphin0520/p/3920407.html
+有点复杂
+简而言之就是提供当前线程的一个副本
+可以用作单例 SPRING
+
+
+B+树与MYSQL索引
+http://www.cnblogs.com/tiancai/p/9024351.html
+适合文件系统
+
+
+Redis缓存穿透
+当一个值在数据库不存在时 直接将空值入键
+当并发量大的时候，锁住第一次读入缓存的请求
+预读入频繁访问的数据
+
+Object有哪些方法
+clone
+getClass
+toString
+finalize
+equals
+hashCode
+wait
+notify
+notifyAll
+
+哪些集合类会用到HashCode
+Set HashMap 等元素不重复的场景
+为了减少开销
+
+
+
+如何重写hashCode
+一个好的hash算法的理想结果应该是: 为不同的对象产生不相等的hash code，使不相等的实例均匀地分布到所有可能的hash code中：
+
+     1. 把某个非零的常数值保存到名为result的int类型的变量中.
+
+     2. 对于对象中的每个关键域f(equals方法中涉及的每个域),完成以下步骤:
+
+          A. 为该域计算int类型的hash code C
+
+               a. 该域是boolean类型                  计算(f?1:0)
+               b. 该域是byte、char、short、int类型    计算(int)f
+               c. 该域是long类型                     计算(int)(f^(f>>>32))
+               d. 该域是float类型                    计算Float.floatToIntBits(f)
+               e. 该域是double类型                   计算Double.doubleToLongBits(f),然后按步骤c计算
+               f. 如果该域是一个对象的引用，并且该类的equals方法通过递归地调用equals的方式来比较这个域，则同样为这个域递 归地调用hashCode。
+              g. 如果该域是一个数组，则要把每个元素当做单独的域来处理。也就是说，递归地应用上述规则，对每个重要的元素计算一个散列码，然后根据步骤3中的做法把这些散列值组合起来。如果数组域中的每个元素都很重要，可以利用发行版本1.5中增加的其中一个Arrays.hashCode方法
+
+            B. 按照下列公式，把步骤2.a中计算结果hash code C合并到result中：
+
+                     result = 31* result + c；
+
+      3. 返回result
+
+      4. 测试
+
+	•	public class User {
+	•	    private String name;
+	•	    private int age;
+	•	    private String passport;
+	•	    //getters and setters, constructor
+	•	    @Override
+	•	    public boolean equals(Object o) {
+	•	        if (o == this) return true;
+	•	        if (!(o instanceof User)) {
+	•	            return false;
+	•	        }
+	•	        User user = (User) o;
+	•	        return user.name.equals(name) &&
+	•	                user.age == age &&
+	•	                user.passport.equals(passport);
+	•	    }
+	•	    //Idea from effective Java : Item 9
+	•	    @Override
+	•	    public int hashCode() {
+	•	        int result = 17;
+	•	        result = 31 * result + name.hashCode();
+	•	        result = 31 * result + age;
+	•	        result = 31 * result + passport.hashCode();
+	•	        return result;
+	•	    }
+	•	}
+
+
+
+
+如何写Redis分布式锁
+
+可靠性
+首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足以下四个条件：
+	0.	互斥性。在任意时刻，只有一个客户端能持有锁。
+	0.	不会发生死锁。即使有一个客户端在持有锁的期间崩溃而没有主动解锁，也能保证后续其他客户端能加锁。
+	0.	具有容错性。只要大部分的Redis节点正常运行，客户端就可以加锁和解锁。
+	0.	解铃还须系铃人。加锁和解锁必须是同一个客户端，客户端自己不能把别人加的锁给解了。
+
+
+public class RedisTool {
+
+    private static final String LOCK_SUCCESS = "OK";
+    private static final String SET_IF_NOT_EXIST = "NX";
+    private static final String SET_WITH_EXPIRE_TIME = "PX";
+
+    /**
+     * 尝试获取分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @param expireTime 超期时间
+     * @return 是否获取成功
+     */
+    public static boolean tryGetDistributedLock(Jedis jedis, String lockKey, String requestId, int expireTime) {
+
+        String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
+
+        if (LOCK_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
+
+    }
+
+}
+
+可以看到，我们加锁就一行代码：jedis.set(String key, String value, String nxxx, String expx, int time)，这个set()方法一共有五个形参：
+	•			第一个为key，我们使用key来当锁，因为key是唯一的。
+
+	•			第二个为value，我们传的是requestId，很多童鞋可能不明白，有key作为锁不就够了吗，为什么还要用到value？原因就是我们在上面讲到可靠性时，分布式锁要满足第四个条件解铃还须系铃人，通过给value赋值为requestId，我们就知道这把锁是哪个请求加的了，在解锁的时候就可以有依据。requestId可以使用UUID.randomUUID().toString()方法生成。
+
+	•			第三个为nxxx，这个参数我们填的是NX，意思是SET IF NOT EXIST，即当key不存在时，我们进行set操作；若key已经存在，则不做任何操作；
+
+	•			第四个为expx，这个参数我们传的是PX，意思是我们要给这个key加一个过期的设置，具体时间由第五个参数决定。
+
+	•			第五个为time，与第四个参数相呼应，代表key的过期时间。
+
+总的来说，执行上面的set()方法就只会导致两种结果：1. 当前没有锁（key不存在），那么就进行加锁操作，并对锁设置个有效期，同时value表示加锁的客户端。2. 已有锁存在，不做任何操作。
+心细的童鞋就会发现了，我们的加锁代码满足我们可靠性里描述的三个条件。首先，set()加入了NX参数，可以保证如果已有key存在，则函数不会调用成功，也就是只有一个客户端能持有锁，满足互斥性。其次，由于我们对锁设置了过期时间，即使锁的持有者后续发生崩溃而没有解锁，锁也会因为到了过期时间而自动解锁（即key被删除），不会发生死锁。最后，因为我们将value赋值为requestId，代表加锁的客户端请求标识，那么在客户端在解锁的时候就可以进行校验是否是同一个客户端。由于我们只考虑Redis单机部署的场景，所以容错性我们暂不考虑。
+
+
+解锁
+public class RedisTool {
+
+    private static final Long RELEASE_SUCCESS = 1L;
+
+    /**
+     * 释放分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @return 是否释放成功
+     */
+    public static boolean releaseDistributedLock(Jedis jedis, String lockKey, String requestId) {
+
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
+
+        if (RELEASE_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
+
+    }
+
+}
+
+可以看到，我们解锁只需要两行代码就搞定了！第一行代码，我们写了一个简单的Lua脚本代码，上一次见到这个编程语言还是在《黑客与画家》里，没想到这次居然用上了。第二行代码，我们将Lua代码传到jedis.eval()方法里，并使参数KEYS[1]赋值为lockKey，ARGV[1]赋值为requestId。eval()方法是将Lua代码交给Redis服务端执行。
+那么这段Lua代码的功能是什么呢？其实很简单，首先获取锁对应的value值，检查是否与requestId相等，如果相等则删除锁（解锁）。那么为什么要使用Lua语言来实现呢？因为要确保上述操作是原子性的。那么为什么执行eval()方法可以确保原子性，源于Redis的特性
+
+简单来说，就是在eval命令执行Lua代码的时候，Lua代码将被当成一个命令去执行，并且直到eval命令执行完成，Redis才会执行其他命令。
+
+
+
+Eureca
+
+
+
+
+
+Sprint boot auto configuration 
+SpringBoot 自动配置主要通过 @EnableAutoConfiguration, @Conditional, @EnableConfigurationProperties 或者 @ConfigurationProperties 等几个注解来进行自动配置完成的。
+
+@EnableAutoConfiguration 开启自动配置，主要作用就是调用 Spring-Core 包里的 loadFactoryNames()，将 autoconfig 包里的已经写好的自动配置加载进来。
+
+@Conditional 条件注解，通过判断类路径下有没有相应配置的 jar 包来确定是否加载和自动配置这个类。
+
+@EnableConfigurationProperties 的作用就是，给自动配置提供具体的配置参数，只需要写在 application.properties 中，就可以通过映射写入配置类的 POJO 属性中。
+
+
+
+链表和红黑树
+http://blog.jobbole.com/111680/
+
+
+Kafka 和 rabbitmq 以及它们的协议？
+Ampq的开源实现
+Routing Key, Exchange, Binding Key, Queue
+fanout类型的Exchange路由规则非常简单，它会把所有发送到该Exchange的消息路由到所有与它绑定的Queue中。
+direct类型的Exchange路由规则也很简单，它会把消息路由到那些binding key与routing key完全匹配的Queue中
+前面提到的direct规则是严格意义上的匹配，换言之Routing Key必须与Binding Key相匹配的时候才将消息传送给Queue，那么topic这个规则就是模糊匹配，可以通过通配符满足一部分规则就可以传送。它的约定是：
+	0.	routing key为一个句点号“. ”分隔的字符串（我们将被句点号“. ”分隔开的每一段独立的字符串称为一个单词），如“stock.usd.nyse”、“nyse.vmw”、“quick.orange.rabbit”
+	0.	binding key与routing key一样也是句点号“. ”分隔的字符串
+	0.	binding key中可以存在两种特殊字符“*”与“#”，用于做模糊匹配，其中“*”用于匹配一个单词，“#”用于匹配多个单词（可以是零个）
+
+TCP为基础，Channel做应用层
+
+
+1.Kafka可以作为集群运行在一台或者多个服务器上面；
+2.Kafka集群可以分类地存储记录流，以打标签的方式，就是采用topics，每个broker可以打个topic，这样能保证消费者可以根据topic选择性消费；
+3.每个记录由Key、Value、timestamp构成。
+
+Kafka四个核心的API
+1.ProducerAPI：允许一个应用向一个或多个topic里发布记录流；
+2.ConsumerAPI：允许一个应用订阅一个或多个topics，处理topic里的数据流，就相当于消费；
+3.StreamAPI：允许应用扮演流处理的作用，从一个或多个topic里消费数据流，然后产生输出流数据到其他一个或多个topic里，对输入流数据有效传输到输出口；
+4.ConnectorAPI：允许运行和构建一个可重复利用的生产者和消费者，能将kafka的topic与其他存在的应用和数据库设备相连接，比如链接一个实时数据库，可以捕捉到每张表的变化。
+
+生产者可靠性级别
+通过以上的讲解，已经可以保证kafka集群内部的可靠性，但是在生产者向kafka集群发送时，数据经过网络传输，也是不可靠的，可能因为网络延迟、闪断等原因造成数据的丢失。
+    kafka为生产者提供了如下的三种可靠性级别，通过不同策略保证不同的可靠性保障。
+    其实此策略配置的就是leader将成功接收消息信息响应给客户端的时机。
+    通过request.required.acks参数配置：
+    1：生产者发送数据给leader，leader收到数据后发送成功信息，生产者收到后认为发送数据成功，如果一直收不到成功消息，则生产者认为发送数据失败会自动重发数据。
+    当leader宕机时，可能丢失数据。
+    0：生产者不停向leader发送数据，而不需要leader反馈成功消息。
+    这种模式效率最高，可靠性最低。可能在发送过程中丢失数据，也可能在leader宕机时丢失数据。
+    -1：生产者发送数据给leader，leader收到数据后要等到ISR列表中的所有副本都同步数据完成后，才向生产者发送成功消息，如果一只收不到成功消息，则认为发送数据失败会自动重发数据。
+    这种模式下可靠性很高，但是当ISR列表中只剩下leader时，当leader宕机让然有可能丢数据。
+    此时可以配置min.insync.replicas指定要求观察ISR中至少要有指定数量的副本，默认该值为1，需要改为大于等于2的值
+    这样当生产者发送数据给leader但是发现ISR中只有leader自己时，会收到异常表明数据写入失败，此时无法写入数据，保证了数据绝对不丢。
+    虽然不丢但是可能会产生冗余数据，例如生产者发送数据给leader，leader同步数据给ISR中的follower，同步到一半leader宕机，此时选出新的leader，可能具有部分此次提交的数据，而生产者收到失败消息重发数据，新的leader接受数据则数据重复了。
+
+
+kafka可靠性的保证
+At most once：消息可能会丢，但绝不会重复传输。
+    At least once：消息绝不会丢，但可能会重复传输。
+    Exactly once：每条消息肯定会被传输一次且仅传输一次。
+    kafka最多保证At least once，可以保证不丢，但是可能会重复，为了解决重复需要引入唯一标识和去重机制，kafka提供了GUID实现了唯一标识，但是并没有提供自带的去重机制，需要开发人员基于业务规则自己去重。
+
+
+幂等
+版本号放缓存
+小于版本号的不处理
+
+
+
+事务隔离
+一、事务的基本要素（ACID）
+　　1、原子性（Atomicity）：事务开始后所有操作，要么全部做完，要么全部不做，不可能停滞在中间环节。事务执行过程中出错，会回滚到事务开始前的状态，所有的操作就像没有发生一样。也就是说事务是一个不可分割的整体，就像化学中学过的原子，是物质构成的基本单位。
+　　 2、一致性（Consistency）：事务开始前和结束后，数据库的完整性约束没有被破坏 。比如A向B转账，不可能A扣了钱，B却没收到。
+
+　　 3、隔离性（Isolation）：同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任何干扰。比如A正在从一张银行卡中取钱，在A取钱的过程结束前，B不能向这张卡转账。
+　　 4、持久性（Durability）：事务完成后，事务对数据库的所有更新将被保存到数据库，不能回滚。
+ 
+二、事务的并发问题
+　　1、脏读：事务A读取了事务B更新的数据，然后B回滚操作，那么A读取到的数据是脏数据
+　　2、不可重复读：事务 A 多次读取同一数据，事务 B 在事务A多次读取的过程中，对数据作了更新并提交，导致事务A多次读取同一数据时，结果 不一致。
+　　3、幻读：系统管理员A将数据库中所有学生的成绩从具体分数改为ABCDE等级，但是系统管理员B就在这个时候插入了一条具体分数的记录，当系统管理员A改结束后发现还有一条记录没有改过来，就好像发生了幻觉一样，这就叫幻读。
+　　小结：不可重复读的和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需锁住满足条件的行，解决幻读需要锁表
+
+三、MySQL事务隔离级别
+事务隔离级别
+脏读
+不可重复读
+幻读
+读未提交（read-uncommitted）
+是
+是
+是
+不可重复读（read-committed）
+否
+是
+是
+可重复读（repeatable-read）
+否
+否
+是
+串行化（serializable）
+否
+否
+否
+ 
+mysql默认的事务隔离级别为repeatable-read
+
+
+
+ZOOKEEPER
+https://www.cnblogs.com/felixzh/p/5869212.html
+Paxos算法 Zab协议 单调一致性
+
+
+
+线程池
+https://www.cnblogs.com/dolphin0520/p/3932921.html
+
+Executor是一个顶层接口，在它里面只声明了一个方法execute(Runnable)，返回值为void，参数为Runnable类型，从字面意思可以理解，就是用来执行传进去的任务的；
+　　然后ExecutorService接口继承了Executor接口，并声明了一些方法：submit、invokeAll、invokeAny以及shutDown等；
+　　抽象类AbstractExecutorService实现了ExecutorService接口，基本实现了ExecutorService中声明的所有方法；
+　　然后ThreadPoolExecutor继承了类AbstractExecutorService。
+　　在ThreadPoolExecutor类中有几个非常重要的方法：
+
+
+execute()方法实际上是Executor中声明的方法，在ThreadPoolExecutor进行了具体的实现，这个方法是ThreadPoolExecutor的核心方法，通过这个方法可以向线程池提交一个任务，交由线程池去执行。
+　　submit()方法是在ExecutorService中声明的方法，在AbstractExecutorService就已经有了具体的实现，在ThreadPoolExecutor中并没有对其进行重写，这个方法也是用来向线程池提交任务的，但是它和execute()方法不同，它能够返回任务执行的结果，去看submit()方法的实现，会发现它实际上还是调用的execute()方法，只不过它利用了Future来获取任务执行结果（Future相关内容将在下一篇讲述）。
+　　shutdown()和shutdownNow()是用来关闭线程池的。
+
+
+	•	如果当前线程池中的线程数目小于corePoolSize，则每来一个任务，就会创建一个线程去执行这个任务；
+	•	如果当前线程池中的线程数目>=corePoolSize，则每来一个任务，会尝试将其添加到任务缓存队列当中，若添加成功，则该任务会等待空闲线程将其取出去执行；若添加失败（一般来说是任务缓存队列已满），则会尝试创建新的线程去执行这个任务；
+	•	如果当前线程池中的线程数目达到maximumPoolSize，则会采取任务拒绝策略进行处理；
+	•	如果线程池中的线程数量大于 corePoolSize时，如果某线程空闲时间超过keepAliveTime，线程将被终止，直至线程池中的线程数目不大于corePoolSize；如果允许为核心池中的线程设置存活时间，那么核心池中的线程空闲时间超过keepAliveTime，线程也会被终止。
+
+
+默认情况下，创建线程池之后，线程池中是没有线程的，需要提交任务之后才会创建线程。
+　　在实际中如果需要线程池创建之后立即创建线程，可以通过以下两个方法办到：
+	•	prestartCoreThread()：初始化一个核心线程；
+	•	prestartAllCoreThreads()：初始化所有核心线程
+
+
+在前面我们多次提到了任务缓存队列，即workQueue，它用来存放等待执行的任务。
+　　workQueue的类型为BlockingQueue<Runnable>，通常可以取下面三种类型：
+　　1）ArrayBlockingQueue：基于数组的先进先出队列，此队列创建时必须指定大小；
+　　2）LinkedBlockingQueue：基于链表的先进先出队列，如果创建时没有指定此队列大小，则默认为Integer.MAX_VALUE；
+　　3）synchronousQueue：这个队列比较特殊，它不会保存提交的任务，而是将直接新建一个线程来执行新来的任务。
+
+
+当线程池的任务缓存队列已满并且线程池中的线程数目达到maximumPoolSize，如果还有任务到来就会采取任务拒绝策略，通常有以下四种策略：
+1
+2
+3
+4
+ThreadPoolExecutor.AbortPolicy:丢弃任务并抛出RejectedExecutionException异常。
+ThreadPoolExecutor.DiscardPolicy：也是丢弃任务，但是不抛出异常。
+ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
+ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
+
+ThreadPoolExecutor提供了两个方法，用于线程池的关闭，分别是shutdown()和shutdownNow()，其中：
+	•	shutdown()：不会立即终止线程池，而是要等所有任务缓存队列中的任务都执行完后才终止，但再也不会接受新的任务
+	•	shutdownNow()：立即终止线程池，并尝试打断正在执行的任务，并且清空任务缓存队列，返回尚未执行的任务
+
+
+ThreadPoolExecutor提供了动态调整线程池容量大小的方法：setCorePoolSize()和setMaximumPoolSize()，
+	•	setCorePoolSize：设置核心池大小
+	•	setMaximumPoolSize：设置线程池最大能创建的线程数目大小
+　　当上述参数从小变大时，ThreadPoolExecutor进行线程赋值，还可能立即创建新的线程来执行任务。
+
+
+Executors.newCachedThreadPool();        //创建一个缓冲池，缓冲池容量大小为Integer.MAX_VALUE
+Executors.newSingleThreadExecutor();   //创建容量为1的缓冲池
+Executors.newFixedThreadPool(int);    //创建固定容量大小的缓冲池
+
+从它们的具体实现来看，它们实际上也是调用了ThreadPoolExecutor，只不过参数都已配置好了。
+　　newFixedThreadPool创建的线程池corePoolSize和maximumPoolSize值是相等的，它使用的LinkedBlockingQueue；
+　　newSingleThreadExecutor将corePoolSize和maximumPoolSize都设置为1，也使用的LinkedBlockingQueue；
+　　newCachedThreadPool将corePoolSize设置为0，将maximumPoolSize设置为Integer.MAX_VALUE，使用的SynchronousQueue，也就是说来了任务就创建线程运行，当线程空闲超过60秒，就销毁线程。
+　　实际中，如果Executors提供的三个静态方法能满足要求，就尽量使用它提供的三个方法，因为自己去手动配置ThreadPoolExecutor的参数有点麻烦，要根据实际任务的类型和数量来进行配置。
+　　另外，如果ThreadPoolExecutor达不到要求，可以自己继承ThreadPoolExecutor类进行重写。
+
+
+
+
+Callable和Future
+https://www.cnblogs.com/fengsehng/p/6048609.html
+
+
+REDIS集群原理
+https://www.cnblogs.com/liyasong/p/redis_jiqun.html?utm_source=itdadao&utm_medium=referral
+
+
+HashMap线程不安全
+http://www.importnew.com/22011.html
+
+
+多活吃透
+
+
+
+复杂SQL
+
+
+
+Redis事务
+
+
+
+Watch 乐观锁
+
+
+
+HTTP
+
+
+
+DNS劫持与HTTPS
+
+
+
+AOP源码
+http://www.cnblogs.com/luoxn28/p/5686794.html
+Spring Aop 的应用:
+注解+反射+Aop切面编程
+
+
+AOP和Transaction注解
+
+
+ThreadPool 派生
+
+
+所有查找排序数据结构 新理一份
+
+
+字典树统计
+https://blog.csdn.net/u014106644/article/details/84105305
+
+1.建立Trie树，记录每颗树的出现次数，O(n*le); le:平均查找长度
+2.维护一个10的小顶堆，O(n*lg10);
+3.总复杂度： O(n*le) + O(n*lg10);
+
+
+既能快速查找，又能快速移动元素的数据结构：堆
+堆排序
+https://www.cnblogs.com/0zcl/p/6737944.html
+
+来一趟大去一趟小
+比较基准值分别交换
+然后循环
+
+CAS
+https://www.cnblogs.com/qjjazry/p/6581568.html
+
+周二 小红书
+周三 携程
+树的广度优先遍历
+https://www.cnblogs.com/isLiu/p/8328533.html
+
+
+ClassLoader
+https://www.cnblogs.com/doit8791/p/5820037.html
+http://www.cnblogs.com/alsf/p/9277932.html
+
+
+java thread dump heap dump dump原理
+
+
+怎样获取初始化好的对象？Spring
+
+
+
+ES的性能瓶颈 如何解决 如何优化
+
+
+日志如何优化？比如1亿行日志
+
+
+MYSQL主键和一般索引的区别
+
+
+举例说明SQL优化
+1.使用id进行分页
+2.建索引表设置成定长，联合索引，做2次查询
+
+显式锁的源码和实现思想
+
+
+消息队列原理
+ insert into table on  DUPLICATE key update
+
+
+springboot原理
+
+
+Class的加载过程
+
+所有源码
+
+所有源码
+Spring ioc aop
+hashMap concurrentHashMap size size size LinkedHashMap
+String
+所有java集合类
+所有java显式锁和底层
+所有设计模式
+所有导致并发问题的原因(源码层)
+类加载机制
+内存屏障
+Happens Before
+AQS CAS
+JPS JSTACK
+JVM CMS
+
+
+互联网 Java 工程师进阶知识完全扫盲
+https://juejin.im/repo/5c1b80f0e51d4537bc55c4a4?utm_source=gold_browser_extension
